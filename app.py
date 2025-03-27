@@ -10,47 +10,27 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-app.config['SECRET_KEY'] = 'key'
-
-MONGO_URI = os.getenv("MONGO_URI")
-
-try:
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    db = client["db_locations"]
-    logs_collection = db["logs"]
-    
-    if "logs" not in db.list_collection_names():
-        db.create_collection("logs")
-
-    print("✅ Conexão com MongoDB estabelecida!")
-
-except Exception as e:
-    print(f"❌ Erro ao conectar ao MongoDB: {e}")
-    exit(1)
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client["db_locations"]
+logs_collection = db["logs"]
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/salvar_localizacao', methods=['POST'])
-def salvar_localizacao():
+@app.route('/save', methods=['POST'])
+def save():
     data = request.json
-    
     if not data or "latitude" not in data or "longitude" not in data:
         return jsonify({"error": "Dados inválidos"}), 400
 
-    ip = request.remote_addr
-    timestamp = (dt.utcnow() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
-
     log_data = {
-        "ip": ip,
-        "latitude": data["latitude"],
-        "longitude": data["longitude"],
-        "timestamp": timestamp
+        "ip": request.remote_addr,
+        "gps": [data["latitude"], data["longitude"]],
+        "timestamp": (dt.utcnow() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
     }
 
     logs_collection.insert_one(log_data)
-
     return jsonify({"message": "Localização salva!", "data": log_data}), 201
 
 if __name__ == '__main__':
