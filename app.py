@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from pymongo import MongoClient
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 import os
 import requests
 from dotenv import load_dotenv
@@ -39,6 +39,8 @@ def home():
 @app.route('/salvar_localizacao', methods=['POST'])
 def salvar_localizacao():
     data = request.json
+
+    timestamp = (dt.utcnow() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
     
     if not data or "latitude" not in data or "longitude" not in data:
         return jsonify({"error": "Dados inválidos"}), 400
@@ -49,7 +51,7 @@ def salvar_localizacao():
         "ip": ip,
         "latitude": data["latitude"],
         "longitude": data["longitude"],
-        "timestamp": dt.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        "timestamp": timestamp
     }
 
     # Salvar no MongoDB
@@ -58,4 +60,4 @@ def salvar_localizacao():
     return jsonify({"message": "Localização salva!", "data": log_data}), 201
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
