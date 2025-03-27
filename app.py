@@ -40,7 +40,8 @@ def save():
 
     log_data = {
         "ip": ip,
-        "gps": [data["latitude"], data["longitude"]],
+        "latitude": data["latitude"],
+        "longitude": data["longitude"],
         "timestamp": timestamp
     }
 
