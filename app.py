@@ -26,7 +26,7 @@ def save():
 
     log_data = {
         "ip": request.remote_addr,
-        "gps": [data["latitude"], data["longitude"]],
+        "gps": f"{data['latitude']} {data['longitude']}",
         "timestamp": (dt.utcnow() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
     }
 
