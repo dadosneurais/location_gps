@@ -40,12 +40,13 @@ def salvar_localizacao():
         return jsonify({"error": "Dados inválidos"}), 400
 
     ip = request.remote_addr
+    timestamp = (dt.utcnow() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
 
     log_data = {
         "ip": ip,
         "latitude": data["latitude"],
         "longitude": data["longitude"],
-        "timestamp": dt.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        "timestamp": timestamp
     }
 
     logs_collection.insert_one(log_data)
