@@ -24,8 +24,10 @@ def save():
     if not data or "latitude" not in data or "longitude" not in data:
         return jsonify({"error": "Dados inválidos"}), 400
 
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
+
     log_data = {
-        "ip": request.remote_addr,
+        "ip": ip,
         "gps": f"{data['latitude']} {data['longitude']}",
         "timestamp": (dt.utcnow() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
     }
@@ -35,3 +37,4 @@ def save():
 
 if __name__ == '__main__':
     app.run(debug=False)
+
