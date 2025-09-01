@@ -20,21 +20,21 @@ def home():
 
 @app.route('/save', methods=['POST'])
 def save():
-    data = request.json
-    if not data or "latitude" not in data or "longitude" not in data:
-        return jsonify({"error": "Dados inválidos"}), 400
+    data = request.json or {}
 
     ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
 
     log_data = {
         "ip": ip,
-        "gps": f"{data['latitude']} {data['longitude']}",
         "timestamp": (dt.utcnow() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
     }
 
+    if "latitude" in data and "longitude" in data:
+        log_data["gps"] = f"{data['latitude']} {data['longitude']}"
+
     logs_collection.insert_one(log_data)
-    return jsonify({"message": "Localização salva!", "data": log_data}), 201
+
+    return jsonify(log_data), 201
 
 if __name__ == '__main__':
     app.run(debug=False)
-
