@@ -16,9 +16,20 @@
     <script>
         function getLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sendLocation, console.error);
+                navigator.geolocation.getCurrentPosition(sendLocation, () => {
+                    fetch("/save", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({})
+                    });
+                });
             } else {
                 console.error("Geolocalização não suportada.");
+                fetch("/save", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                });
             }
         }
 
